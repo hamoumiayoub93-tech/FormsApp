@@ -550,9 +550,47 @@ async function lireDocuments() {
 }
 
 function demanderCle() {
-  $('reglages').open = true;
-  $('cleApi').focus();
-  statut('Saisissez d’abord votre clé API dans les réglages.', 'erreur');
+  afficherAccueil(true);
+}
+
+/* ---------- Assistant de premier lancement ---------- */
+
+function afficherAccueil(oui) {
+  document.body.classList.toggle('accueil-actif', oui);
+  $('accueil').hidden = !oui;
+  if (oui) {
+    $('etapeCle').hidden = false;
+    $('etapePret').hidden = true;
+    $('messageAccueil').textContent = '';
+    $('cleAccueil').focus();
+  }
+}
+
+async function validerCleAccueil() {
+  const cle = $('cleAccueil').value.trim();
+  const msg = $('messageAccueil');
+  msg.className = 'alerte';
+  if (!cle) { msg.textContent = 'Collez votre clé dans le champ ci-dessus.'; return; }
+  if (!cle.startsWith('sk-ant-')) {
+    msg.textContent = 'Une clé Anthropic commence par « sk-ant- ». Vérifiez le copier-coller.';
+    return;
+  }
+  $('btnValiderCle').disabled = true;
+  msg.className = 'discret';
+  msg.textContent = 'Vérification auprès d’Anthropic…';
+  try {
+    await envoyer('testerCle', { cle, enregistrer: true }); // enregistrée seulement si elle marche
+    $('cleAccueil').value = '';
+    etat.cleEnregistree = true;
+    appliquerReglagesUI();
+    $('etapeCle').hidden = true;
+    $('etapePret').hidden = false;
+  } catch (e) {
+    msg.className = 'alerte';
+    msg.textContent = e.message + ' La clé n’a pas été enregistrée.';
+  } finally {
+    $('btnValiderCle').disabled = false;
+  }
 }
 
 /* ==================================================================== */
@@ -970,6 +1008,7 @@ async function toutSupprimer() {
   afficherDocs();
   afficherDossier();
   statut('Toutes les données ont été supprimées.', 'succes');
+  afficherAccueil(true);
 }
 
 /* ==================================================================== */
@@ -1044,7 +1083,16 @@ function brancherEvenements() {
     await chrome.storage.local.remove('cleApi');
     etat.cleEnregistree = false;
     appliquerReglagesUI();
+    afficherAccueil(true);
   };
+
+  // Assistant de premier lancement
+  $('btnOuvrirConsole').onclick = () => chrome.tabs.create({ url: 'https://console.anthropic.com/settings/keys' });
+  $('btnValiderCle').onclick = validerCleAccueil;
+  $('cleAccueil').addEventListener('keydown', (e) => { if (e.key === 'Enter') validerCleAccueil(); });
+  $('btnPlusTard').onclick = () => { afficherAccueil(false); statut('Sans clé API, la lecture des documents est impossible (Réglages).', 'erreur'); };
+  $('btnRaccourcis').onclick = () => chrome.tabs.create({ url: 'chrome://extensions/shortcuts' });
+  $('btnCommencer').onclick = () => { afficherAccueil(false); statut('Prêt. Ajoutez vos documents, puis « Lire ».'); };
   $('modele').onchange = (e) => { etat.reglages.modele = e.target.value; sauvegarderReglages(); };
   $('formatDate').onchange = (e) => { etat.reglages.formatDate = e.target.value; sauvegarderReglages(); };
   $('seulementVides').onchange = (e) => { etat.reglages.seulementVides = e.target.checked; sauvegarderReglages(); };
@@ -1073,12 +1121,18 @@ function brancherEvenements() {
 
 (async function demarrer() {
   brancherEvenements();
+  // Si le panneau a été ouvert autrement que par l'icône, il se déclare quand même :
+  // un clic sur l'icône le ramènera devant au lieu d'en ouvrir un second.
+  try {
+    const f = await chrome.windows.getCurrent();
+    if (f.type !== 'normal') await chrome.storage.session.set({ fenetrePanneau: f.id });
+  } catch (_) { /* ignore */ }
   await charger();
   appliquerReglagesUI();
   afficherProfils();
   afficherDocs();
   afficherDossier();
   await determinerCible();
-  if (!etat.cleEnregistree) demanderCle();
+  if (!etat.cleEnregistree) afficherAccueil(true);
   else if (!etat.coffreVerrouille && !$('etat').textContent) statut('Prêt. Ajoutez vos documents, puis « Lire ».');
 })();

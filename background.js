@@ -47,6 +47,11 @@ async function ouvrirPanneau() {
 
 chrome.action.onClicked.addListener(() => { ouvrirPanneau(); });
 
+/* Première installation : le panneau s'ouvre tout seul sur l'assistant d'accueil. */
+chrome.runtime.onInstalled.addListener(({ reason }) => {
+  if (reason === 'install') ouvrirPanneau();
+});
+
 chrome.windows.onRemoved.addListener(async (id) => {
   const { fenetrePanneau } = await chrome.storage.session.get('fenetrePanneau');
   if (id === fenetrePanneau) await chrome.storage.session.remove('fenetrePanneau');
@@ -275,8 +280,14 @@ async function vision({ image, dossier, largeur, hauteur }) {
 
 /* ---------- Test de la clé (sans consommer de jetons) ---------- */
 
-async function testerCle() {
-  const { cleApi, modele } = await lireReglages();
+/**
+ * Vérifie une clé. Sans paramètre : la clé enregistrée. Avec { cle, enregistrer } :
+ * la clé proposée, enregistrée seulement si elle fonctionne (assistant d'accueil).
+ */
+async function testerCle({ cle, enregistrer } = {}) {
+  const reglages = await lireReglages();
+  const cleApi = cle || reglages.cleApi;
+  const modele = reglages.modele;
   if (!cleApi) throw new Error('Aucune clé API enregistrée.');
   let rep;
   try {
@@ -286,6 +297,7 @@ async function testerCle() {
   }
   if (!rep.ok) throw new Error(U.messageErreurHttp(rep.status, await lireDetailErreur(rep)));
   const j = await rep.json();
+  if (cle && enregistrer) await chrome.storage.local.set({ cleApi: cle });
   return { message: `Clé valide. Modèle disponible : ${j.display_name || modele}.` };
 }
 

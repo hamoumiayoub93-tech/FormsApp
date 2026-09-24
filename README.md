@@ -29,7 +29,14 @@ Chrome 121 ou plus récent est requis.
 
 1. Créez un compte sur <https://console.anthropic.com>, ajoutez un moyen de paiement ou des crédits.
 2. Menu **API Keys** → **Create Key** → copiez la clé (`sk-ant-…`). Conseil : fixez une limite de dépense mensuelle dans la console.
-3. Dans AutoFill Admin, ouvrez **Réglages**, collez la clé, puis **Tester la clé** (le test interroge la liste des modèles : il ne consomme aucun jeton).
+3. **Au premier lancement, un assistant s’ouvre tout seul** (juste après l’installation de l’extension) : collez la clé et cliquez **Vérifier et enregistrer**. La clé est testée auprès d’Anthropic *avant* d’être enregistrée (ce test ne consomme aucun jeton) ; une clé mal copiée ou refusée n’est pas conservée. Vous pourrez la changer plus tard dans **Réglages**.
+
+## Lancer l’outil au quotidien
+
+- **Icône épinglée** : pièce de puzzle en haut à droite de Chrome → punaise à côté d’AutoFill Admin. Un clic ouvre le panneau, ou le ramène devant s’il est déjà ouvert.
+- **Raccourci clavier** : <kbd>Alt</kbd>+<kbd>Maj</kbd>+<kbd>A</kbd> ouvre le panneau, <kbd>Alt</kbd>+<kbd>Maj</kbd>+<kbd>F</kbd> remplit le formulaire.
+- **Raccourci utilisable depuis n’importe quelle application** : `chrome://extensions/shortcuts` (bouton « Ouvrir les raccourcis » de l’assistant) → à côté du raccourci, choisissez la portée **Global**. Chrome doit être ouvert.
+- La fenêtre du panneau reste où vous l’avez posée (par exemple sur le second écran).
 
 La clé est enregistrée dans `chrome.storage.local` uniquement. Elle n’est lue que par le service worker, n’est jamais réaffichée, jamais transmise à la page ni journalisée, et ne fait pas partie du dépôt Git (voir `.gitignore`).
 

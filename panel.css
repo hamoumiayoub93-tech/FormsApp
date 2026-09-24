@@ -236,3 +236,16 @@ td input.vide { border-style: dashed; }
 }
 .boite { width: 100%; max-width: 360px; }
 .boite input { width: 100%; margin-top: 6px; }
+
+/* Assistant de premier lancement */
+body.accueil-actif main, body.accueil-actif footer { display: none; }
+.accueil { flex: 1; overflow-y: auto; padding: 16px 18px; }
+.accueil p { margin: 0 0 10px; }
+h2.grand { font-size: 18px; margin-bottom: 10px; }
+.etapes-accueil { padding-left: 20px; margin: 12px 0; }
+.etapes-accueil li { margin-bottom: 16px; }
+.etapes-accueil li > * { display: block; margin-top: 6px; }
+.etapes-accueil input { width: 100%; padding: 7px 8px; }
+.astuces { padding-left: 18px; }
+.astuces li { margin-bottom: 10px; }
+.astuces button { display: block; margin-top: 4px; }

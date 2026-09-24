@@ -16,6 +16,41 @@
     </label>
   </header>
 
+  <!-- Assistant de premier lancement -->
+  <section id="accueil" class="accueil" hidden>
+    <div id="etapeCle">
+      <h2 class="grand">Bienvenue</h2>
+      <p>AutoFill Admin remplit vos formulaires administratifs à partir de vos documents. Une seule chose à configurer : votre <strong>clé API Anthropic</strong>.</p>
+      <ol class="etapes-accueil">
+        <li>
+          <strong>Créez une clé</strong> sur la console Anthropic (compte + quelques euros de crédit), menu « API Keys » → « Create Key ».
+          <button id="btnOuvrirConsole">Ouvrir la console Anthropic</button>
+        </li>
+        <li>
+          <strong>Collez-la ici</strong>
+          <input type="password" id="cleAccueil" autocomplete="off" spellcheck="false" placeholder="sk-ant-…" aria-label="Clé API">
+          <button id="btnValiderCle" class="principal gros">Vérifier et enregistrer</button>
+          <p id="messageAccueil" class="discret" aria-live="polite"></p>
+        </li>
+      </ol>
+      <p class="discret">La clé reste sur ce PC (stockage local de Chrome). Elle n’est envoyée qu’à api.anthropic.com et n’est plus jamais affichée.</p>
+      <button id="btnPlusTard" class="lien">Plus tard</button>
+    </div>
+
+    <div id="etapePret" hidden>
+      <h2 class="grand">C’est prêt ✔</h2>
+      <p>Pour lancer AutoFill Admin facilement :</p>
+      <ul class="astuces">
+        <li><strong>Épinglez l’icône</strong> : cliquez sur la pièce de puzzle en haut à droite de Chrome, puis sur la punaise à côté d’AutoFill Admin.</li>
+        <li><kbd>Alt</kbd>+<kbd>Maj</kbd>+<kbd>A</kbd> ouvre ce panneau (ou le ramène devant), <kbd>Alt</kbd>+<kbd>Maj</kbd>+<kbd>F</kbd> remplit le formulaire.</li>
+        <li>Pour que le raccourci marche <strong>même depuis une autre application</strong> : ouvrez les raccourcis et réglez la portée sur « Global ».
+          <button id="btnRaccourcis">Ouvrir les raccourcis</button></li>
+        <li>Ce panneau est une fenêtre à part : placez-le sur votre second écran, il y reste.</li>
+      </ul>
+      <button id="btnCommencer" class="principal gros">Commencer</button>
+    </div>
+  </section>
+
   <main>
     <!-- Cible -->
     <section class="carte cible" id="carteCible" aria-live="polite">
