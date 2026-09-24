@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>AutoFill Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="panel.css">
+</head>
+<body>
+  <header class="entete">
+    <img src="icons/icon32.png" alt="" width="20" height="20">
+    <h1>AutoFill Admin</h1>
+    <label class="profil" title="Profil (dossier) utilisé">
+      <span class="sr">Profil</span>
+      <select id="selProfil"></select>
+    </label>
+  </header>
+
+  <main>
+    <!-- Cible -->
+    <section class="carte cible" id="carteCible" aria-live="polite">
+      <div class="cible-texte">
+        <span class="etiquette">Cible</span>
+        <strong id="cibleTitre">—</strong>
+        <span id="cibleDomaine" class="discret"></span>
+      </div>
+      <button id="btnChangerCible" class="lien">Changer de cible</button>
+      <div id="choixCible" hidden>
+        <select id="selOnglet" aria-label="Onglet cible"></select>
+      </div>
+      <p id="cibleErreur" class="alerte" hidden></p>
+    </section>
+
+    <!-- 1. Documents -->
+    <section class="carte">
+      <h2><span class="num">1</span> Documents</h2>
+      <div id="zoneDepot" class="depot" tabindex="0">
+        <span>Collez une capture (<kbd>Ctrl</kbd>+<kbd>V</kbd>) ou glissez des fichiers ici</span>
+        <span class="discret">PNG, JPG, WEBP, PDF — plusieurs documents possibles</span>
+      </div>
+      <div class="rang">
+        <button id="btnPressePapiers">Lire le presse-papiers</button>
+        <button id="btnFichier">Charger un fichier</button>
+        <input type="file" id="inputFichier" accept="image/png,image/jpeg,image/webp,application/pdf" multiple hidden>
+      </div>
+      <ul id="listeDocs" class="docs"></ul>
+      <button id="btnLire" class="principal" disabled>Lire</button>
+    </section>
+
+    <!-- 2. Dossier -->
+    <section class="carte">
+      <h2><span class="num">2</span> Dossier <span id="nbDonnees" class="discret"></span></h2>
+      <p id="dossierVide" class="discret">Aucune donnée pour l’instant : ajoutez un document puis cliquez sur « Lire ».</p>
+      <div class="table-defil">
+        <table id="tableDossier" hidden>
+          <thead><tr><th>Donnée</th><th>Valeur</th><th title="Confiance">●</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="rang">
+        <button id="btnAjouterLigne" class="lien">+ Ajouter une donnée</button>
+        <span class="espace"></span>
+        <button id="btnReinitialiser" class="lien danger">Réinitialiser le dossier</button>
+      </div>
+    </section>
+
+    <!-- Résultat du remplissage -->
+    <section class="carte" id="carteResultat" hidden>
+      <h2>Résultat</h2>
+      <div id="resume"></div>
+      <details id="detailsSansDonnee" hidden>
+        <summary>Champs sans donnée</summary>
+        <ul id="listeSansDonnee" class="liste-simple"></ul>
+      </details>
+      <div id="propositionVision" class="encart" hidden>
+        <p>Peu de champs exploitables dans cette page. Vous pouvez envoyer une <strong>capture de l’onglet cible</strong> à l’API pour repérer les zones à remplir.</p>
+        <button id="btnVision">Analyser par capture d’écran</button>
+      </div>
+      <ul id="listeVision" class="liste-simple"></ul>
+    </section>
+
+    <!-- Réglages -->
+    <details class="carte reglages" id="reglages">
+      <summary>Réglages</summary>
+      <label class="champ">Clé API Anthropic
+        <input type="password" id="cleApi" autocomplete="off" spellcheck="false" placeholder="sk-ant-...">
+      </label>
+      <div class="rang">
+        <button id="btnTesterCle">Tester la clé</button>
+        <button id="btnEffacerCle" class="lien danger">Supprimer la clé</button>
+        <span id="etatCle" class="discret"></span>
+      </div>
+
+      <label class="champ">Modèle
+        <select id="modele">
+          <option value="claude-sonnet-5">Claude Sonnet 5 (recommandé)</option>
+          <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 (économique)</option>
+          <option value="claude-opus-5-5">Claude Opus 5.5 (écritures difficiles)</option>
+        </select>
+      </label>
+
+      <label class="champ">Format de date (champs texte)
+        <select id="formatDate">
+          <option value="JJ/MM/AAAA">JJ/MM/AAAA</option>
+          <option value="AAAA-MM-JJ">AAAA-MM-JJ</option>
+          <option value="JJ-MM-AAAA">JJ-MM-AAAA</option>
+          <option value="JJ.MM.AAAA">JJ.MM.AAAA</option>
+          <option value="MM/JJ/AAAA">MM/JJ/AAAA</option>
+        </select>
+      </label>
+
+      <label class="case"><input type="checkbox" id="seulementVides"> Ne remplir que les champs vides</label>
+      <label class="case"><input type="checkbox" id="conserver"> Conserver le dossier entre les sessions</label>
+      <label class="case sous" id="ligneChiffrer"><input type="checkbox" id="chiffrer"> Chiffrer avec une phrase secrète</label>
+
+      <div class="rang">
+        <button id="btnNouveauProfil" class="lien">+ Nouveau profil</button>
+        <button id="btnRenommerProfil" class="lien">Renommer</button>
+        <button id="btnSupprimerProfil" class="lien danger">Supprimer ce profil</button>
+      </div>
+      <div class="rang">
+        <button id="btnOublierMemoire" class="lien">Oublier la mémoire des sites</button>
+        <span id="infoMemoire" class="discret"></span>
+      </div>
+      <div class="rang">
+        <button id="btnToutSupprimer" class="danger">Tout supprimer</button>
+        <span class="discret">dossiers, mémoire et clé</span>
+      </div>
+      <p class="discret">Raccourcis : <kbd>Alt</kbd>+<kbd>Maj</kbd>+<kbd>A</kbd> ouvre ce panneau, <kbd>Alt</kbd>+<kbd>Maj</kbd>+<kbd>F</kbd> remplit la cible (modifiables dans chrome://extensions/shortcuts).</p>
+    </details>
+  </main>
+
+  <!-- Actions, toujours visibles -->
+  <footer class="actions">
+    <div id="etat" class="etat" role="status" aria-live="polite"></div>
+    <button id="btnRemplir" class="principal gros">Remplir le formulaire</button>
+    <div class="rang serre">
+      <button id="btnReanalyser" title="Pour un formulaire en plusieurs étapes, quand la page a changé">Analyser la page à nouveau</button>
+      <button id="btnAnnuler" title="Restaure les valeurs d’avant le remplissage">Annuler le remplissage</button>
+      <button id="btnEffacer" class="lien">Effacer les surlignages</button>
+    </div>
+    <p class="rappel">Vérifiez toujours chaque champ avant de valider.</p>
+  </footer>
+
+  <!-- Phrase secrète (déverrouillage ou création) -->
+  <div id="modal" class="voile" hidden>
+    <form id="formModal" class="carte boite">
+      <h2 id="titreModal"></h2>
+      <p id="texteModal"></p>
+      <input type="password" id="phrase1" autocomplete="off" aria-label="Phrase secrète" placeholder="Phrase secrète">
+      <input type="password" id="phrase2" autocomplete="off" aria-label="Confirmer la phrase secrète" placeholder="Confirmez la phrase secrète" hidden>
+      <p id="erreurModal" class="alerte" hidden></p>
+      <div class="rang">
+        <button type="submit" id="btnModalOk" class="principal">Valider</button>
+        <button type="button" id="btnModalAnnuler" class="lien">Annuler</button>
+      </div>
+    </form>
+  </div>
+
+  <script src="lib/utils.js"></script>
+  <script src="panel.js"></script>
+</body>
+</html>
