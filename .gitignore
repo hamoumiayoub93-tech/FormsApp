@@ -1,0 +1,25 @@
+# Secrets : la clé API ne doit JAMAIS être versionnée
+.env
+.env.*
+*.key
+cle*.txt
+cle-api*
+api-key*
+secrets/
+
+# Documents personnels éventuellement déposés pour des essais
+documents/
+*.pdf
+!test/**/*.pdf
+
+# Divers
+node_modules/
+*.log
+*.zip
+*.crx
+*.pem
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
