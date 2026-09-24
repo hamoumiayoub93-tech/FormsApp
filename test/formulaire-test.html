@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Demande d’aide au logement — formulaire de test</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body { font: 15px/1.45 system-ui, "Segoe UI", sans-serif; background: #eef1f5; margin: 0; color: #1d2330; }
+  header { background: #000091; color: #fff; padding: 14px 24px; }
+  header h1 { margin: 0; font-size: 20px; }
+  header p { margin: 4px 0 0; opacity: .85; font-size: 13px; }
+  main { max-width: 820px; margin: 20px auto; background: #fff; padding: 24px 28px; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+  .etapes { display: flex; gap: 8px; margin-bottom: 18px; }
+  .etapes span { flex: 1; padding: 6px; border-bottom: 4px solid #cfd6e4; font-size: 13px; color: #666; }
+  .etapes span.active { border-color: #000091; color: #000091; font-weight: 600; }
+  fieldset { border: 1px solid #d6dbe4; border-radius: 6px; margin: 0 0 18px; padding: 12px 16px 16px; }
+  legend { font-weight: 700; padding: 0 6px; }
+  .ligne { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
+  .champ { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
+  .champ > label, .champ > .etiq { font-size: 13px; font-weight: 600; }
+  .aide { font-size: 12px; color: #666; }
+  input[type=text], input[type=email], input[type=tel], input[type=date], input[type=number], input[type=password], input:not([type]), select, textarea {
+    font: inherit; padding: 7px 9px; border: 1px solid #9aa4b5; border-radius: 4px; background: #fff;
+  }
+  textarea { min-height: 70px; }
+  .radios label, .cases label { display: inline-flex; align-items: center; gap: 6px; margin-right: 16px; font-weight: normal; }
+  .actions { display: flex; justify-content: space-between; margin-top: 12px; }
+  button { font: inherit; padding: 8px 16px; border-radius: 4px; border: 1px solid #000091; background: #fff; color: #000091; cursor: pointer; }
+  button.envoi { background: #000091; color: #fff; }
+  .cache { display: none; }
+  .temoin { font: 12px ui-monospace, Consolas, monospace; background: #f4f6fa; border-radius: 4px; padding: 6px 8px; margin-top: 6px; color: #444; }
+  #alerteSoumis { display: none; background: #fdecea; color: #b3261e; padding: 10px; border-radius: 4px; font-weight: 700; margin-bottom: 12px; }
+
+  /* Liste déroulante personnalisée (type combobox ARIA) */
+  .liste-perso { position: relative; }
+  .liste-perso .bouton { border: 1px solid #9aa4b5; border-radius: 4px; padding: 7px 9px; cursor: pointer; background: #fff; }
+  .liste-perso ul { position: absolute; z-index: 5; left: 0; right: 0; top: 100%; margin: 2px 0 0; padding: 4px 0; list-style: none; background: #fff; border: 1px solid #9aa4b5; border-radius: 4px; max-height: 180px; overflow: auto; box-shadow: 0 4px 12px rgba(0,0,0,.12); }
+  .liste-perso li { padding: 5px 10px; cursor: pointer; }
+  .liste-perso li:hover { background: #e3e8ff; }
+
+  /* Autocomplétion d'adresse simulée */
+  .auto { position: relative; }
+  .auto ul { position: absolute; z-index: 5; left: 0; right: 0; top: 100%; margin: 2px 0 0; padding: 4px 0; list-style: none; background: #fff; border: 1px solid #9aa4b5; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,.12); }
+  .auto li { padding: 6px 10px; cursor: pointer; font-size: 14px; }
+  .auto li:hover { background: #e3e8ff; }
+
+  /* Case à cocher stylée (input masqué, libellé visible) */
+  .case-stylee input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .case-stylee span::before { content: "☐ "; }
+  .case-stylee input:checked + span::before { content: "☑ "; color: #000091; }
+
+  iframe { width: 100%; height: 110px; border: 1px dashed #9aa4b5; border-radius: 4px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Demande d’aide personnalisée au logement</h1>
+  <p>Formulaire de TEST pour AutoFill Admin — aucune donnée n’est envoyée nulle part.</p>
+</header>
+
+<main>
+  <div id="alerteSoumis">⚠ Le formulaire a été SOUMIS. L’extension ne doit jamais faire cela !</div>
+  <div class="etapes"><span id="ind1" class="active">1. Identité</span><span id="ind2">2. Logement et ressources</span></div>
+
+  <form id="formulaire" action="#" onsubmit="return soumis(event)">
+
+    <!-- ============ ÉTAPE 1 ============ -->
+    <section id="etape1">
+      <h2>Étape 1 — Votre identité</h2>
+
+      <fieldset>
+        <legend>État civil</legend>
+        <div class="champ">
+          <span class="etiq" id="lblCivilite">Civilité *</span>
+          <div class="radios" role="radiogroup" aria-labelledby="lblCivilite">
+            <label><input type="radio" name="civilite" value="M" required> Monsieur</label>
+            <label><input type="radio" name="civilite" value="MME"> Madame</label>
+          </div>
+        </div>
+        <div class="ligne">
+          <div class="champ"><label for="nom">Nom de naissance *</label><input id="nom" name="nomNaissance" required autocomplete="family-name"></div>
+          <div class="champ"><label for="nomUsage">Nom d’usage</label><input id="nomUsage" name="nomUsage"><span class="aide">Nom d’époux(se), si vous l’utilisez</span></div>
+          <div class="champ"><label for="prenom">Prénom(s) *</label><input id="prenom" name="prenom" required autocomplete="given-name"></div>
+          <div class="champ"><label for="dateNaissance">Date de naissance *</label><input type="date" id="dateNaissance" name="dateNaissance" required></div>
+          <div class="champ"><label for="lieuNaissance">Commune de naissance</label><input id="lieuNaissance" name="lieuNaissance"></div>
+          <div class="champ">
+            <span class="etiq" id="lblPaysNaiss">Pays de naissance</span>
+            <!-- Liste personnalisée : pas de <select>, un div role=combobox -->
+            <div class="liste-perso">
+              <div class="bouton" id="paysNaissance" role="combobox" tabindex="0" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="lblPaysNaiss" aria-controls="listePays">Choisir un pays</div>
+              <ul id="listePays" role="listbox" hidden>
+                <li role="option">Allemagne</li><li role="option">Algérie</li><li role="option">Belgique</li>
+                <li role="option">Espagne</li><li role="option">France</li><li role="option">Italie</li>
+                <li role="option">Maroc</li><li role="option">Portugal</li><li role="option">Tunisie</li>
+              </ul>
+            </div>
+          </div>
+          <div class="champ"><label for="nationalite">Nationalité</label>
+            <select id="nationalite" name="nationalite">
+              <option value="">-- Sélectionnez --</option>
+              <option value="FR">Française</option>
+              <option value="UE">Ressortissant de l’Union européenne</option>
+              <option value="HUE">Hors Union européenne</option>
+            </select>
+          </div>
+          <div class="champ"><label for="nir">N° de sécurité sociale</label><input id="nir" name="nir" placeholder="1 85 03 75 112 345 67" maxlength="21"></div>
+        </div>
+        <div class="champ">
+          <label for="situation">Situation familiale</label>
+          <select id="situation" name="situation">
+            <option value="">-- Choisir --</option>
+            <option value="C">Célibataire</option>
+            <option value="M">Marié(e)</option>
+            <option value="P">Pacsé(e)</option>
+            <option value="D">Divorcé(e)</option>
+            <option value="V">Veuf / veuve</option>
+          </select>
+        </div>
+        <!-- Champ conditionnel : n'apparaît qu'après le choix Marié(e) / Pacsé(e) -->
+        <div class="champ cache" id="blocConjoint"><label for="conjoint">Nom et prénom du conjoint</label><input id="conjoint" name="conjoint"></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Coordonnées</legend>
+        <div class="ligne">
+          <div class="champ"><label for="email">Adresse e-mail *</label><input type="email" id="email" name="email" required></div>
+          <div class="champ"><label for="tel">Téléphone portable</label><input type="tel" id="tel" name="telephone" placeholder="06 12 34 56 78"></div>
+        </div>
+        <!-- Champ de type « React » : un état interne n'est mis à jour que par l'événement input -->
+        <div class="champ"><label for="numAlloc">Numéro allocataire (si vous en avez un)</label><input id="numAlloc" name="numeroAllocataire">
+          <div class="temoin">État interne du composant : <span id="etatAlloc">(vide)</span></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Espace personnel (NE DOIT PAS être rempli)</legend>
+        <div class="ligne">
+          <div class="champ"><label for="mdp">Mot de passe</label><input type="password" id="mdp" name="password" autocomplete="new-password"></div>
+          <div class="champ"><label for="captcha">Recopiez le code de l’image (CAPTCHA)</label><input id="captcha" name="captcha"></div>
+        </div>
+      </fieldset>
+
+      <div class="actions">
+        <span></span>
+        <!-- type=button : c'est VOUS qui cliquez ; l'extension ne doit jamais le faire -->
+        <button type="button" onclick="allerEtape(2)">Étape suivante →</button>
+      </div>
+    </section>
+
+    <!-- ============ ÉTAPE 2 ============ -->
+    <section id="etape2" class="cache">
+      <h2>Étape 2 — Logement et ressources</h2>
+
+      <fieldset>
+        <legend>Adresse du logement</legend>
+        <div class="champ auto">
+          <label for="adresse">Adresse (commencez à taper, puis choisissez)</label>
+          <input id="adresse" name="adresse" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="suggestions" autocomplete="off">
+          <ul id="suggestions" role="listbox" hidden></ul>
+        </div>
+        <div class="ligne">
+          <div class="champ"><label for="complement">Complément d’adresse</label><input id="complement" name="complement" placeholder="Bâtiment, étage, appartement"></div>
+          <div class="champ"><label for="cp">Code postal</label><input id="cp" name="codePostal" inputmode="numeric" maxlength="5"></div>
+          <div class="champ"><label for="ville">Commune</label><input id="ville" name="ville"></div>
+          <div class="champ"><label for="dateEntree">Date d’entrée dans le logement</label><input id="dateEntree" name="dateEntree" placeholder="jj/mm/aaaa"></div>
+        </div>
+        <div class="champ">
+          <span class="etiq">Vous êtes</span>
+          <div class="radios">
+            <label><input type="radio" name="statutLogement" value="loc"> Locataire</label>
+            <label><input type="radio" name="statutLogement" value="colo"> Colocataire</label>
+            <label><input type="radio" name="statutLogement" value="heb"> Hébergé(e)</label>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Ressources</legend>
+        <div class="ligne">
+          <div class="champ"><label for="employeur">Employeur actuel</label><input id="employeur" name="employeur"></div>
+          <div class="champ"><label for="salaire">Salaire net mensuel (€)</label><input type="number" step="0.01" id="salaire" name="salaireNet"></div>
+          <div class="champ"><label for="rfr">Revenu fiscal de référence (€)</label><input id="rfr" name="rfr"></div>
+        </div>
+        <!-- Champ dans un Shadow DOM (composant web) -->
+        <div class="champ">
+          <span class="etiq">Composant web (Shadow DOM)</span>
+          <champ-siret></champ-siret>
+        </div>
+        <!-- Champ dans un iframe -->
+        <div class="champ">
+          <span class="etiq">Cadre intégré (iframe)</span>
+          <iframe title="Identifiant fiscal" srcdoc='<!doctype html><html lang="fr"><body style="font:14px system-ui;margin:8px"><label for="nf" style="font-weight:600">Numéro fiscal (13 chiffres)</label><br><input id="nf" name="numeroFiscal" style="font:inherit;padding:6px;margin-top:4px;width:260px"></body></html>'></iframe>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Coordonnées bancaires (pour le versement)</legend>
+        <div class="ligne">
+          <div class="champ"><label for="iban">IBAN</label><input id="iban" name="iban" placeholder="FR76 0000 0000 0000 0000 0000 000"></div>
+          <div class="champ"><label for="bic">BIC</label><input id="bic" name="bic"></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Paiement des frais de dossier (NE DOIT PAS être rempli)</legend>
+        <div class="ligne">
+          <div class="champ"><label for="carte">Numéro de carte</label><input id="carte" name="cardnumber" autocomplete="cc-number"></div>
+          <div class="champ"><label for="cvc">Cryptogramme</label><input id="cvc" name="cvc" autocomplete="cc-csc"></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Pour finir</legend>
+        <div class="champ"><label for="commentaire">Informations complémentaires</label><textarea id="commentaire" name="commentaire"></textarea></div>
+        <div class="cases">
+          <label class="case-stylee"><input type="checkbox" name="contactEmail"><span>J’accepte d’être contacté(e) par e-mail</span></label>
+        </div>
+        <div class="cases">
+          <label><input type="checkbox" name="certifie" required> Je certifie sur l’honneur l’exactitude des informations</label>
+        </div>
+      </fieldset>
+
+      <div class="actions">
+        <button type="button" onclick="allerEtape(1)">← Étape précédente</button>
+        <button type="submit" class="envoi">Envoyer ma demande</button>
+      </div>
+    </section>
+  </form>
+</main>
+
+<script>
+  // Compteur de soumissions : doit rester à zéro après un remplissage automatique.
+  function soumis(e) {
+    e.preventDefault();
+    document.getElementById('alerteSoumis').style.display = 'block';
+    return false;
+  }
+
+  function allerEtape(n) {
+    document.getElementById('etape1').classList.toggle('cache', n !== 1);
+    document.getElementById('etape2').classList.toggle('cache', n !== 2);
+    document.getElementById('ind1').classList.toggle('active', n === 1);
+    document.getElementById('ind2').classList.toggle('active', n === 2);
+    window.scrollTo(0, 0);
+  }
+
+  // Champ conditionnel
+  document.getElementById('situation').addEventListener('change', (e) => {
+    document.getElementById('blocConjoint').classList.toggle('cache', !['M', 'P'].includes(e.target.value));
+  });
+
+  // Composant « contrôlé » : état interne mis à jour uniquement sur l'événement input
+  document.getElementById('numAlloc').addEventListener('input', (e) => {
+    document.getElementById('etatAlloc').textContent = e.target.value || '(vide)';
+  });
+
+  // Liste personnalisée
+  (function () {
+    const bouton = document.getElementById('paysNaissance');
+    const liste = document.getElementById('listePays');
+    bouton.addEventListener('click', () => {
+      liste.hidden = !liste.hidden;
+      bouton.setAttribute('aria-expanded', String(!liste.hidden));
+    });
+    liste.addEventListener('click', (e) => {
+      const li = e.target.closest('li');
+      if (!li) return;
+      bouton.textContent = li.textContent;
+      liste.hidden = true;
+      bouton.setAttribute('aria-expanded', 'false');
+    });
+  })();
+
+  // Autocomplétion d'adresse simulée (réponse « serveur » après 400 ms)
+  (function () {
+    const base = [
+      { l: '12 Rue de la Paix 75002 Paris', cp: '75002', v: 'Paris' },
+      { l: '12 Rue de la Paix 13001 Marseille', cp: '13001', v: 'Marseille' },
+      { l: '8 Avenue Jean Jaurès 69007 Lyon', cp: '69007', v: 'Lyon' },
+      { l: '25 Boulevard Victor Hugo 06000 Nice', cp: '06000', v: 'Nice' },
+      { l: '3 Place du Capitole 31000 Toulouse', cp: '31000', v: 'Toulouse' },
+      { l: '47 Rue des Lilas 44000 Nantes', cp: '44000', v: 'Nantes' }
+    ];
+    const champ = document.getElementById('adresse');
+    const ul = document.getElementById('suggestions');
+    let minuterie;
+    const sansAccent = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+    champ.addEventListener('input', () => {
+      clearTimeout(minuterie);
+      const q = sansAccent(champ.value).split(/\s+/).filter((m) => m.length > 1);
+      if (champ.value.length < 3) { ul.hidden = true; return; }
+      minuterie = setTimeout(() => {
+        const res = base.filter((a) => q.slice(0, 3).every((m) => sansAccent(a.l).includes(m)));
+        ul.innerHTML = '';
+        res.forEach((a) => {
+          const li = document.createElement('li');
+          li.setAttribute('role', 'option');
+          li.textContent = a.l;
+          li.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            champ.value = a.l;
+            document.getElementById('cp').value = a.cp;
+            document.getElementById('ville').value = a.v;
+            ul.hidden = true;
+            champ.setAttribute('aria-expanded', 'false');
+          });
+          ul.append(li);
+        });
+        ul.hidden = !res.length;
+        champ.setAttribute('aria-expanded', String(!!res.length));
+      }, 400);
+    });
+    champ.addEventListener('blur', () => setTimeout(() => { ul.hidden = true; }, 200));
+  })();
+
+  // Composant web avec Shadow DOM ouvert
+  customElements.define('champ-siret', class extends HTMLElement {
+    constructor() {
+      super();
+      this.attachShadow({ mode: 'open' }).innerHTML = `
+        <style>label{font:600 13px system-ui;display:block;margin-bottom:4px} input{font:15px system-ui;padding:7px 9px;border:1px solid #9aa4b5;border-radius:4px;width:260px}</style>
+        <label for="siret">SIRET de l’employeur</label>
+        <input id="siret" name="siretEmployeur" inputmode="numeric">`;
+    }
+  });
+</script>
+</body>
+</html>
