@@ -1,0 +1,128 @@
+# logic.txt - rules of the prototype, checked in the PC harness
+# scenes: 0 title 1 map 2 transition 3 dialog 4 battle 5 capture 6 flee 7 wordex 8 error
+seed 7
+expect scene 0
+expect level 0
+expect mode 1
+key a
+expect scene 1
+# start position and collisions: (10,16), trees all around
+expect px 10
+expect py 16
+key down
+wait 300
+expect py 16
+key right
+wait 300
+key right
+wait 300
+key right
+wait 300
+key right
+wait 300
+expect px 13
+# each successful step used one unit of the start delay
+expect cool 0
+# back to (10,16), then up to the tall grass at (10,12) (no roll outside tall grass)
+key left
+wait 300
+key left
+wait 300
+key left
+wait 300
+key up
+wait 300
+key up
+wait 300
+key up
+wait 300
+expect py 13
+expect scene 1
+# 20 % roll: force a hit (raw value 0 -> 0 % 1000 < 200), creature 0
+rng 0
+rng 0
+key up
+wait 100
+expect py 12
+expect scene 2
+wait 700
+expect scene 4
+expect hp 3
+expect hearts 3
+# A1: three right answers catch it, okstreak grows
+wait 1000
+right
+wait 100
+expect hp 2
+expect okstreak 1
+key a
+wait 100
+right
+wait 100
+key a
+wait 100
+right
+wait 100
+expect hp 0
+expect okstreak 3
+key a
+wait 1000
+expect scene 5
+expect dex 1
+key a
+expect scene 1
+expect cool 4
+# encounter delay: 4 steps without any roll
+key up
+wait 300
+key down
+wait 300
+key up
+wait 300
+key down
+wait 300
+expect cool 0
+expect scene 1
+rng 0
+rng 1
+key up
+wait 1800
+expect scene 4
+# 4th right answer in a row -> level up to A2
+right
+wait 100
+expect level 1
+expect okstreak 0
+# three wrong answers: kostreak 3 -> back to A1, missed questions stored for A2, creature flees
+key a
+wait 100
+wrong
+wait 100
+expect kostreak 1
+expect missed1 1
+key a
+wait 100
+wrong
+wait 100
+key a
+wait 100
+wrong
+wait 100
+expect level 0
+expect kostreak 0
+expect hearts 0
+key a
+wait 100
+expect scene 6
+print
+key a
+expect scene 1
+# Wordex with buttons only: A away from Prof. Lexi opens it, arrows select, A closes
+key a
+expect scene 7
+key right
+key right
+key down
+key a
+expect scene 1
+print

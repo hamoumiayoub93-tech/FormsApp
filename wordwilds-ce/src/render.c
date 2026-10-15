@@ -100,17 +100,17 @@ void r_vgrad(int y0, int y1, u32 c0, u32 c1)
 
 void r_blit(const u16 *src, int sw, int sh, int dx, int dy)
 {
-    int j, i;
+    int j, i, x0 = 0, x1 = sw;
+    if (dx < 0) x0 = -dx;
+    if (dx + sw > tw) x1 = tw - dx;
     for (j = 0; j < sh; j++) {
         int y = dy + j;
-        const u16 *s = src + j * sw;
+        const u16 *s;
         u16 *d;
         if (y < 0 || y >= th) continue;
-        d = tgt + y * tw;
-        for (i = 0; i < sw; i++) {
-            int x = dx + i;
-            if (x >= 0 && x < tw) d[x] = s[i];
-        }
+        s = src + j * sw;
+        d = tgt + y * tw + dx;
+        for (i = x0; i < x1; i++) d[i] = s[i];     /* clipped once per row */
     }
 }
 

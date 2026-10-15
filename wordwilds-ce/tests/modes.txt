@@ -1,0 +1,80 @@
+# modes.txt - B1/Hard (timer, no FR), then A2/Easy (French hint, Hint button)
+seed 99
+key up
+key right
+expect mode 2
+key up
+key right
+key right
+expect level 2
+shot m01_title_b1_hard
+key down
+key down
+key a
+wait 300
+key up
+wait 210
+key up
+wait 210
+key up
+wait 210
+key left
+wait 210
+key up
+wait 210
+key up
+wait 210
+key up
+wait 210
+key up
+wait 210
+key up
+wait 210
+key up
+wait 210
+key up
+wait 210
+key left
+wait 210
+key left
+wait 210
+key left
+wait 210
+key left
+wait 210
+key left
+wait 210
+key up
+wait 250
+expect scene 3
+shot m02_dialog_b1
+key a
+key a
+key a
+key a
+expect scene 1
+key down
+wait 210
+key down
+wait 210
+key down
+wait 210
+key down
+wait 210
+key down
+wait 210
+key left
+wait 210
+rng 0
+rng 3
+key down
+wait 1800
+expect scene 4
+wait 3000
+shot m03_hard_timer
+wait 9200
+expect hearts 2
+shot m04_time_up
+key a
+wait 100
+print

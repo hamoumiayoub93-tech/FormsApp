@@ -1,0 +1,5 @@
+wait 100
+expect scene 8
+shot err
+key a
+expect quit 1

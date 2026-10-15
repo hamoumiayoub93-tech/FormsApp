@@ -611,3 +611,17 @@ int battle_debug(int what)
     }
     return 0;
 }
+
+/* test harness: run pick_spec() n times at the current level and count how
+   many picks come from the missed list (expected 40 % + chance) */
+int battle_pick_stat(int n)
+{
+    int i, k, hits = 0;
+    for (i = 0; i < n; i++) {
+        Spec s;
+        B.last_key[0] = 0;
+        pick_spec(&s);
+        for (k = 0; k < S.nmissed[S.level]; k++) if (spec_eq(&S.missed[S.level][k], &s)) { hits++; break; }
+    }
+    return hits;
+}

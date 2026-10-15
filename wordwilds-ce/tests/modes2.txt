@@ -1,0 +1,107 @@
+# modes2.txt - A2 / Easy: sentence with the French hint, Hint button, level-up toast
+seed 5
+key up
+key left
+expect mode 0
+key up
+key right
+expect level 1
+key down
+key down
+key a
+wait 300
+key up
+wait 210
+key up
+wait 210
+key up
+wait 210
+key left
+wait 210
+key up
+wait 210
+key up
+wait 210
+key up
+wait 210
+key up
+wait 210
+key up
+wait 210
+key up
+wait 210
+key up
+wait 210
+key left
+wait 210
+key left
+wait 210
+key left
+wait 210
+key left
+wait 210
+key left
+wait 210
+key up
+wait 250
+shot e01_dialog_a2
+key right
+shot e02_dialog_a2_fr
+key a
+key a
+key a
+key a
+key down
+wait 210
+key down
+wait 210
+key down
+wait 210
+key down
+wait 210
+key down
+wait 210
+key left
+wait 210
+rng 0
+rng 2
+key down
+wait 1800
+expect scene 4
+shot e03_a2_easy_question
+key hint
+shot e04_hint_used
+right
+wait 100
+shot e05_a2_feedback
+key a
+wait 100
+right
+wait 100
+key a
+wait 100
+right
+wait 100
+expect okstreak 3
+key a
+wait 1000
+expect scene 5
+key a
+wait 100
+key up
+wait 250
+key down
+wait 250
+key up
+wait 250
+key down
+wait 250
+rng 0
+rng 4
+key right
+wait 1800
+right
+wait 300
+expect level 2
+shot e06_level_up_toast
+print

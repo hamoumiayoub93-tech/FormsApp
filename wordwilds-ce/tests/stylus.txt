@@ -1,0 +1,37 @@
+# stylus.txt - a whole game with the stylus only (no key at all)
+seed 3
+tap 152 192
+expect level 2
+tap 88 192
+expect level 0
+tap 120 300
+expect scene 1
+# hold the stylus above the player: walks up the column x=10 to the tall grass (10,12)
+rng 999
+press 168 216 1500
+expect px 10
+expect py 12
+expect scene 1
+# force an encounter on the next tall grass step: hold on the tile above
+rng 0
+rng 0
+press 168 200 300
+wait 1800
+expect scene 4
+# tap choices: find the right one through the harness
+tapright
+wait 1500
+tapright
+wait 1500
+tapright
+wait 2000
+expect scene 5
+tap 120 258
+expect scene 1
+expect dex 1
+tap 205 8
+expect scene 7
+tap 60 60
+tap 215 18
+expect scene 1
+print

@@ -16,10 +16,13 @@
  *   tap X Y           stylus tap
  *   press X Y MS      stylus held for MS
  *   right / wrong     answer the current question right or wrong (keys 1-4)
+ *   tapright          tap the right choice with the stylus
  *   shot NAME         write <out-dir>/NAME.ppm
  *   expect WHAT V     check a value (scene level mode px py dex missed0..2
  *                     okstreak kostreak cool hp hearts quit sounds); exits 1 if wrong
  *   print             dump the state
+ *   level N           set the level directly (tests)
+ *   pickstat N        run the question picker N times, report missed share
  * Compiled with -fshort-wchar so that wchar_t is 16 bits like on Windows.
  */
 #include <stdio.h>
@@ -169,7 +172,17 @@ int main(int argc, char **argv)
             if (cmd[0] == 'w') { k = (ans + 1) % 4; while (off & (1 << k) || k == ans) k = (k + 1) % 4; }
             game_key(K_1 + k, 1); advance(FRAME_MS); game_key(K_1 + k, 0);
         }
+        else if (!strcmp(cmd, "tapright")) {          /* stylus tap on the right choice */
+            int k = battle_debug(0), x = (k & 1) ? 178 : 62, y = (k & 2) ? 289 : 255;
+            game_pointer(x, y, 0); advance(FRAME_MS); game_pointer(x, y, 2);
+        }
         else if (!strcmp(cmd, "shot")) shot(argv[3], a);
+        else if (!strcmp(cmd, "level")) S.level = atoi(a);
+        else if (!strcmp(cmd, "pickstat")) {
+            int n = atoi(a), h = battle_pick_stat(n);
+            printf("pickstat level %d: %d/%d picks from the %d missed questions (%d.%d %%)\n",
+                   S.level, h, n, S.nmissed[S.level], h * 100 / n, h * 1000 / n % 10);
+        }
         else if (!strcmp(cmd, "expect")) {
             int v = value(a), want = atoi(b);
             if (v != want) { fprintf(stderr, "line %d: expect %s %d, got %d\n", lineno, a, want, v); fails++; }

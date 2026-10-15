@@ -174,5 +174,6 @@ void battle_end(void);
 int battle_active(void);
 void battle_interact(void);   /* A button */
 int battle_debug(int what);   /* test harness */
+int battle_pick_stat(int n);  /* test harness */
 
 #endif
