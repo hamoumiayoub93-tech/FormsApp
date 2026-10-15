@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>WordWilds – aperçu Axim</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&family=Figtree:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#dde6e9;--ink:#16252d;--muted:#51656f;--dev:#3b4e58;--dev-hi:#5a7280;--btn:#243139;--btn-ink:#f2f5f6;--btn-edge:#10181c;--link:#b04a1f;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#10181c;--ink:#e6eef1;--muted:#93a6af;--dev:#27363e;--dev-hi:#40545f;--btn:#35474f;--btn-ink:#f2f5f6;--btn-edge:#0a1013;--link:#ff9a6b}
+}
+:root[data-theme="dark"]{--bg:#10181c;--ink:#e6eef1;--muted:#93a6af;--dev:#27363e;--dev-hi:#40545f;--btn:#35474f;--btn-ink:#f2f5f6;--btn-edge:#0a1013;--link:#ff9a6b}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Figtree,system-ui,sans-serif;line-height:1.45}
+.wrap{max-width:460px;margin:0 auto;padding:18px 14px 28px}
+h1{font-family:"Pixelify Sans",ui-monospace,monospace;font-size:26px;margin:0 0 2px;font-weight:600}
+.sub{margin:0 0 14px;color:var(--muted);font-size:14px}
+.device{background:linear-gradient(180deg,var(--dev-hi) 0,var(--dev) 14%);border-radius:26px 26px 38px 38px;padding:16px 16px 20px;display:flex;flex-direction:column;align-items:center;gap:16px}
+.bezel{background:#0b1114;border-radius:10px;padding:8px}
+.stage{position:relative;overflow:hidden;width:240px;height:320px;background:#000}
+.pad{width:100%;display:flex;justify-content:space-between;align-items:center;padding:0 6px}
+.dpad{display:grid;grid-template-columns:repeat(3,52px);grid-template-rows:repeat(3,52px);gap:2px}
+.dpad button{grid-area:auto}
+.pbtn{font:600 18px "Pixelify Sans",monospace;color:var(--btn-ink);background:var(--btn);border:0;border-bottom:4px solid var(--btn-edge);border-radius:10px;cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+.pbtn:active{transform:translateY(2px);border-bottom-width:2px}
+.pbtn:focus-visible,.mini:focus-visible,.seg button:focus-visible,.ch:focus-visible,.go:focus-visible,.link:focus-visible{outline:2px solid #fff;outline-offset:1px}
+.right{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.abtn{width:76px;height:76px;border-radius:50%;font-size:26px;background:#e0642f;color:#fff;border-bottom-color:#8f3a15}
+.dexbtn{padding:10px 14px;font-size:14px}
+.info{margin:16px 2px 0;font-size:13.5px;color:var(--muted)}
+.info p{margin:0 0 8px}
+.link{background:none;border:0;padding:0;color:var(--link);font:inherit;text-decoration:underline;cursor:pointer}
+
+/* ---------- inside the 240x320 screen ---------- */
+.scr{position:absolute;left:0;top:0;width:240px;height:320px;overflow:hidden;transform-origin:0 0;font-family:"Pixelify Sans",ui-monospace,monospace;font-size:12px;line-height:1.25;color:#f6efd5;background:#1d2b3a}
+.scr canvas#cv{position:absolute;left:0;top:0;width:240px;height:320px;image-rendering:pixelated}
+.scr button{font-family:inherit}
+.hidden{display:none!important}
+.hud{position:absolute;left:0;top:0;width:240px;height:16px;background:#1d2b3a;display:flex;justify-content:space-between;align-items:center;padding:0 3px 0 6px;font-size:10px}
+.foot{position:absolute;left:0;bottom:0;width:240px;height:16px;line-height:16px;text-align:center;background:#1d2b3a;font-size:10px;color:#c9d4da}
+.mini{font-size:10px;background:#ffcf4a;color:#1d2b3a;border:0;border-bottom:2px solid #b8891a;padding:1px 5px;cursor:pointer;line-height:1.3}
+.mini:disabled{opacity:.35;cursor:default}
+#flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+#flash.go{animation:blink .6s steps(1) 1}
+@keyframes blink{0%{opacity:1}16%{opacity:0}33%{opacity:1}50%{opacity:0}66%{opacity:1}83%{opacity:0}100%{opacity:1}}
+.toast{position:absolute;left:20px;right:20px;top:22px;text-align:center;background:#ffcf4a;color:#1d2b3a;padding:4px 6px;font-size:12px;font-weight:600;opacity:0;transform:translateY(-6px);transition:opacity .2s,transform .2s;pointer-events:none;z-index:20}
+.toast.show{opacity:1;transform:none}
+
+.dialog{position:absolute;left:6px;right:6px;bottom:22px;background:#f6efd5;color:#1d2b3a;border:2px solid #1d2b3a;box-shadow:0 0 0 2px #f6efd5;padding:8px 8px 6px;min-height:78px;cursor:pointer;z-index:5}
+.dialog .who{font-weight:600;color:#b04a1f;margin-bottom:2px}
+#dtext{font-size:12px;min-height:44px}
+.drow{display:flex;justify-content:space-between;align-items:center;margin-top:2px}
+.drow .more{font-size:10px;color:#6a6040}
+
+.battle{position:absolute;inset:0;pointer-events:none}
+.battle>*{pointer-events:auto}
+.b-top{position:absolute;left:6px;right:6px;top:5px;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none!important}
+.b-top>*{pointer-events:auto}
+.chip{background:#1d2b3add;padding:3px 6px;font-size:11px}
+.pips{display:flex;gap:3px;margin-top:3px;align-items:center;font-size:10px}
+.pips i{width:12px;height:8px;border:1px solid #ffcf4a;display:block}
+.pips i.on{background:#ffcf4a}
+.b-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.hearts{color:#ff6b6b;letter-spacing:1px;font-size:12px}
+.panel{position:absolute;left:0;right:0;top:172px;height:148px;background:#1d2b3a;border-top:3px solid #ffcf4a;padding:5px 6px}
+.tbar{height:4px;background:#33475b;margin-bottom:4px;overflow:hidden}
+.tbar i{display:block;height:100%;width:100%;background:#ff8a5c}
+.tbar.off{visibility:hidden}
+#qtext,#fb{height:50px;overflow:hidden}
+#qtext{display:flex;flex-direction:column;justify-content:center;font-size:12px}
+#qtext small{font-size:9px;line-height:1.1;color:#9fb4c4;margin-top:2px}
+#qtext u{display:inline-block;width:34px;border-bottom:2px solid #ffcf4a;text-decoration:none}
+#fb{font-size:11px;line-height:1.2}
+#fb b.ok{color:#8be08a}#fb b.no{color:#ff9a8a}
+#fb em{display:block;font-style:normal;font-size:9px;color:#9fb4c4;margin-top:1px}
+#choices{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:2px}
+.ch{height:30px;background:#f6efd5;color:#1d2b3a;border:0;border-bottom:3px solid #b9ad82;font-size:11px;line-height:1.1;padding:0 3px;cursor:pointer}
+.ch.ok{background:#7fd47f;border-color:#3f9a3f}
+.ch.bad{background:#f08a7a;border-color:#b4473a}
+.ch.off{opacity:.3;pointer-events:none}
+.card{position:absolute;left:10px;right:10px;top:36px;height:246px;background:#f6efd5;color:#1d2b3a;border:2px solid #1d2b3a;box-shadow:0 0 0 2px #f6efd5;padding:10px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;z-index:6}
+.card .ct{font-size:16px;font-weight:600;color:#b04a1f}
+.card canvas{width:72px;height:72px;image-rendering:pixelated}
+.card .cw{font-size:22px;font-weight:600}
+.card .cs{font-size:12px}
+.card .cf{font-size:10px;color:#6a6040}
+.card .cr{margin-top:auto;display:flex;gap:6px}
+.card .mini{font-size:11px;padding:3px 8px}
+
+.dex{position:absolute;inset:0;background:#1d2b3a;padding:6px;z-index:8;display:flex;flex-direction:column;gap:5px}
+.dex .dh{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:600}
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:5px;flex:1}
+.dcard{background:#2b4258;border:0;border-bottom:3px solid #14202c;color:#f6efd5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:2px;cursor:pointer;font-size:11px}
+.dcard canvas{width:48px;height:48px;image-rendering:pixelated}
+.dcard.lock canvas{filter:brightness(0);opacity:.4}
+.dcard.sel{outline:2px solid #ffcf4a}
+.dinfo{height:62px;background:#f6efd5;color:#1d2b3a;padding:5px 7px;font-size:11px;overflow:hidden}
+.dinfo small{display:block;font-size:9px;color:#6a6040;margin-top:2px}
+
+.title{position:absolute;inset:0;z-index:10;background:linear-gradient(180deg,#1d2b3a 0%,#26515a 70%,#3a7a6d 100%);display:flex;flex-direction:column;align-items:center;padding:16px 14px 10px;text-align:center;gap:6px}
+.title h2{margin:0;font-size:32px;line-height:1;color:#ffcf4a;font-weight:600;text-shadow:3px 3px 0 #14202c}
+.title .tag{font-size:11px;color:#d6e6e0}
+.tsp{display:flex;gap:4px;margin:2px 0}
+.tsp canvas{width:44px;height:44px;image-rendering:pixelated}
+.lab{font-size:10px;color:#bcd0d4;margin-top:2px}
+.seg{display:flex;gap:4px}
+.seg button{background:#2b4258;color:#f6efd5;border:0;border-bottom:3px solid #14202c;padding:4px 10px;font-size:12px;cursor:pointer}
+.seg button.on{background:#ffcf4a;color:#1d2b3a;border-bottom-color:#b8891a;font-weight:600}
+.mh{font-size:10px;color:#d6e6e0;min-height:13px}
+.go{margin-top:auto;background:#e0642f;color:#fff;border:0;border-bottom:4px solid #8f3a15;padding:7px 26px;font-size:15px;font-weight:600;cursor:pointer}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}#flash.go{animation:none}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <h1>WordWilds</h1>
+  <p class="sub">Aperçu jouable de l'idée, au format de l'écran de l'Axim X5 (240×320).</p>
+
+  <div class="device">
+    <div class="bezel">
+      <div class="stage" id="stage">
+        <div class="scr" id="scr">
+          <canvas id="cv" width="240" height="320"></canvas>
+          <div class="hud hidden" id="hud"><span id="hudL"></span><button class="mini" id="hudDex"></button></div>
+          <div class="foot hidden" id="foot">Walk into the tall grass!</div>
+          <div id="flash"></div>
+
+          <div class="dialog hidden" id="dialog">
+            <div class="who">Prof. Lexi</div>
+            <div id="dtext"></div>
+            <div class="drow"><button class="mini" id="dfr">FR</button><span class="more">tap or A ▸</span></div>
+          </div>
+
+          <section class="battle hidden" id="battle">
+            <div class="b-top">
+              <div><div class="chip" id="bname"></div><div class="pips"><span class="chip" style="padding:1px 4px;font-size:9px">Catch</span><span id="pips" style="display:flex;gap:3px"></span></div></div>
+              <div class="b-right"><div class="chip hearts" id="hearts"></div><div style="display:flex;gap:3px"><button class="mini" id="bhint">Hint</button><button class="mini hidden" id="bsay">Listen</button></div></div>
+            </div>
+            <div class="panel">
+              <div class="tbar off" id="tbar"><i id="tfill"></i></div>
+              <div id="qtext"></div>
+              <div id="fb" class="hidden"></div>
+              <div id="choices"></div>
+            </div>
+            <div class="card hidden" id="card"></div>
+          </section>
+
+          <section class="dex hidden" id="dex">
+            <div class="dh"><span id="dexT">Wordex</span><button class="mini" id="dexClose">Close</button></div>
+            <div class="dgrid" id="dgrid"></div>
+            <div class="dinfo" id="dinfo">Tap a card.</div>
+          </section>
+
+          <section class="title" id="title">
+            <h2>Word<br>Wilds</h2>
+            <div class="tag">Catch words. Learn English.</div>
+            <div class="tsp" id="tsp"></div>
+            <div class="lab">Level</div>
+            <div class="seg" id="segLv"><button data-lv="0">A1</button><button data-lv="1">A2</button><button data-lv="2">B1</button></div>
+            <div class="lab">Mode</div>
+            <div class="seg" id="segMode"><button data-m="0">Easy</button><button data-m="1">Normal</button><button data-m="2">Hard</button></div>
+            <div class="mh" id="mh"></div>
+            <button class="go" id="start">Start</button>
+          </section>
+
+          <div class="toast" id="toast"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pad">
+      <div class="dpad">
+        <span></span><button class="pbtn" data-d="0,-1" aria-label="Haut">▲</button><span></span>
+        <button class="pbtn" data-d="-1,0" aria-label="Gauche">◀</button><span></span><button class="pbtn" data-d="1,0" aria-label="Droite">▶</button>
+        <span></span><button class="pbtn" data-d="0,1" aria-label="Bas">▼</button><span></span>
+      </div>
+      <div class="right">
+        <button class="pbtn abtn" id="btnA" aria-label="Action">A</button>
+        <button class="pbtn dexbtn" id="btnDex">Wordex</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="info">
+    <p>Clavier : flèches ou WASD pour marcher, Entrée/Espace pour le bouton A, 1 à 4 pour répondre. Marchez dans l'herbe haute pour rencontrer une créature : 3 bonnes réponses pour la capturer, 3 erreurs et elle s'enfuit.</p>
+    <p>Le niveau monte tout seul après 4 bonnes réponses d'affilée et redescend après 3 erreurs. Les questions ratées reviennent plus tard.</p>
+    <p><button class="link" id="snd">Son : activé</button> · <button class="link" id="reset">Effacer la progression</button></p>
+  </div>
+</main>
+
+<script>
+(()=>{
+"use strict";
+const W=240,H=320,T=16,COLS=15,ROWS=18,OY=16;
+const $=id=>document.getElementById(id);
+const cv=$("cv"),ctx=cv.getContext("2d");ctx.imageSmoothingEnabled=false;
+const LV=["A1","A2","B1"],MODES=["Easy","Normal","Hard"];
+const MODEHINT=["Hints and French help","No help, no timer","12 s timer, no help"];
+const rand=n=>Math.floor(Math.random()*n);
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=rand(i+1);[a[i],a[j]]=[a[j],a[i]]}return a};
+const reduced=matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------- drawing helpers ---------- */
+const R=(g,x,y,w,h,c)=>{g.fillStyle=c;g.fillRect(x,y,w,h)};
+const E=(g,cx,cy,rx,ry,c)=>{g.fillStyle=c;for(let j=-ry;j<=ry;j++)for(let i=-rx;i<=rx;i++)if(i*i/(rx*rx)+j*j/(ry*ry)<=1)g.fillRect(cx+i,cy+j,1,1)};
+const hh=(x,y,k)=>{let n=(x*374761393+y*668265263+k*2147483647)|0;n=(n^(n>>>13))*1274126177|0;return (n^(n>>>16))>>>0};
+
+/* ---------- map ---------- */
+const MAP=[
+"TTTTTTTTTTTTTTT",
+"T.............T",
+"T..HH.....gg..T",
+"T..HH.....ggg.T",
+"T..==.....gg..T",
+"T..=N=........T",
+"T..===........T",
+"T.....==......T",
+"T.gg....=.....T",
+"Tggg....==..~~T",
+"Tgg......=..~~T",
+"T........=gg.~T",
+"T..gggg..=ggg.T",
+"T..gggg..=....T",
+"T..ggg...==...T",
+"T........=....T",
+"T.........=...T",
+"TTTTTTTTTTTTTTT"];
+const tile=(x,y)=>(MAP[y]&&MAP[y][x])||"T";
+const solid=c=>"T~HN".includes(c);
+
+const mapCv=document.createElement("canvas");mapCv.width=COLS*T;mapCv.height=ROWS*T;
+(function renderMap(){
+  const g=mapCv.getContext("2d");
+  for(let ty=0;ty<ROWS;ty++)for(let tx=0;tx<COLS;tx++){
+    const c=tile(tx,ty),x=tx*T,y=ty*T;
+    const grass=()=>{R(g,x,y,T,T,"#79c36f");for(let k=0;k<4;k++){const a=hh(tx,ty,k);R(g,x+a%14+1,y+((a>>4)%13)+1,2,1,"#62ad5f")}};
+    const path=()=>{R(g,x,y,T,T,"#e8d3a0");for(let k=0;k<4;k++){const a=hh(tx,ty,k+9);R(g,x+a%14+1,y+((a>>4)%13)+1,2,1,"#d3bb82")}};
+    if(c==="g"){R(g,x,y,T,T,"#3f9b57");for(let i=0;i<6;i++){const bx=x+1+Math.floor(i*2.7),bh=6+hh(tx,ty,i)%5;R(g,bx,y+T-bh,1,bh,"#2c7a45");R(g,bx+1,y+T-bh+1,1,2,"#8be08a")}}
+    else if(c==="T"){grass();E(g,x+8,y+7,7,7,"#2b6a46");E(g,x+6,y+5,3,3,"#3f8f5a");R(g,x+6,y+12,4,4,"#7a4b2a")}
+    else if(c==="~"){R(g,x,y,T,T,"#4aa3d8");for(let i=0;i<3;i++)if((tx*7+ty*3+i)%3!==1)R(g,x+((i*5+tx*3)%10)+2,y+3+i*5,4,1,"#8fd0f0")}
+    else if(c==="="||c==="N"){path();if(c==="N"){R(g,x+5,y+2,6,3,"#7b4fc4");R(g,x+5,y+5,6,4,"#f3c9a0");R(g,x+6,y+6,1,2,"#1d2b3a");R(g,x+9,y+6,1,2,"#1d2b3a");R(g,x+4,y+9,8,5,"#ffffff");R(g,x+4,y+9,1,5,"#c9d4da");R(g,x+11,y+9,1,5,"#c9d4da");R(g,x+5,y+14,2,2,"#2a3550");R(g,x+9,y+14,2,2,"#2a3550")}}
+    else if(c==="H"){
+      if(tile(tx,ty-1)!=="H"){R(g,x,y,T,T,"#d2573f");for(let r=3;r<T;r+=4)R(g,x,y+r,T,1,"#a83f2d");R(g,x,y,T,1,"#e98068")}
+      else{R(g,x,y,T,T,"#f1e6c8");R(g,x,y,T,1,"#c9b98e");
+        if(tx===3){R(g,x+4,y+3,8,6,"#7a5a2a");R(g,x+5,y+4,6,4,"#7fc2e8");R(g,x+8,y+4,1,4,"#7a5a2a")}
+        else{R(g,x+4,y+3,8,13,"#7a4b2a");R(g,x+5,y+4,6,12,"#935c35");R(g,x+10,y+10,1,2,"#ffcf4a")}}}
+    else grass();
+  }
+})();
+
+/* ---------- creatures (original) ---------- */
+const CREATURES=[
+ {id:"applet",name:"Applet",kind:"leaf",body:"#e0483d",dark:"#8f2a2a",light:"#ffb3a6",accent:"#ff8fa8",word:"apple",s:"I eat an apple every day.",fr:"Je mange une pomme tous les jours."},
+ {id:"sunnix",name:"Sunnix",kind:"flame",body:"#ffb637",dark:"#a8641a",light:"#ffe08a",accent:"#ff7a3a",word:"sun",s:"The sun is hot today.",fr:"Le soleil est chaud aujourd'hui."},
+ {id:"cloodle",name:"Cloodle",kind:"cloud",body:"#9fc6ee",dark:"#4a6fa0",light:"#e8f3ff",accent:"#f7a6c4",word:"cloud",s:"There is a big cloud in the sky.",fr:"Il y a un gros nuage dans le ciel."},
+ {id:"finley",name:"Finley",kind:"fin",body:"#3fb7b0",dark:"#1e6b73",light:"#a7efe3",accent:"#ff8a5c",word:"fish",s:"The fish swims in the river.",fr:"Le poisson nage dans la rivière."},
+ {id:"bookle",name:"Bookle",kind:"ears",body:"#8a6fd1",dark:"#46368a",light:"#d4c6f7",accent:"#ffd166",word:"book",s:"She reads a book at night.",fr:"Elle lit un livre le soir."},
+ {id:"keyko",name:"Keyko",kind:"horn",body:"#7e9a8b",dark:"#3e5648",light:"#cfe3d6",accent:"#f2c14e",word:"key",s:"I lost my key at school.",fr:"J'ai perdu ma clé à l'école."}
+];
+function makeSprite(c){
+  const s=document.createElement("canvas");s.width=s.height=32;const g=s.getContext("2d");
+  const tri=(cx,top,h,col)=>{for(let r=0;r<h;r++){const w=1+Math.floor(r*.9)*1;R(g,cx-Math.floor(w/2),top+r,w,1,col)}};
+  if(c.kind==="ears"){tri(9,3,8,c.dark);tri(9,5,5,c.accent);tri(23,3,8,c.dark);tri(23,5,5,c.accent)}
+  if(c.kind==="horn"){tri(16,0,11,c.dark);tri(16,2,8,c.accent)}
+  if(c.kind==="leaf"){R(g,16,4,1,8,"#3d7a3a");E(g,20,5,4,2,"#58b44a");E(g,12,7,3,2,"#58b44a")}
+  if(c.kind==="fin"){tri(16,1,10,c.dark);tri(16,3,7,c.accent);E(g,4,22,3,3,c.accent);E(g,28,22,3,3,c.accent)}
+  if(c.kind==="flame"){tri(10,4,8,"#ff8a2a");tri(16,0,11,"#ffcf3a");tri(22,4,8,"#ff8a2a")}
+  if(c.kind==="cloud"){E(g,10,10,5,4,c.light);E(g,16,8,6,5,c.light);E(g,22,10,5,4,c.light)}
+  E(g,16,20,11,9,c.dark);E(g,16,20,10,8,c.body);E(g,16,23,6,5,c.light);
+  R(g,11,17,3,4,"#fff");R(g,18,17,3,4,"#fff");R(g,12,18,2,3,"#1b1b2b");R(g,19,18,2,3,"#1b1b2b");R(g,12,18,1,1,"#fff");R(g,19,18,1,1,"#fff");
+  R(g,8,23,3,2,c.accent);R(g,21,23,3,2,c.accent);
+  R(g,14,25,4,1,c.dark);R(g,13,24,1,1,c.dark);R(g,18,24,1,1,c.dark);
+  return s;
+}
+CREATURES.forEach(c=>c.sprite=makeSprite(c));
+
+/* ---------- vocabulary (would live in CSV files on the Axim) ---------- */
+const WORDS=[["apple","pomme"],["dog","chien"],["house","maison"],["chair","chaise"],["water","eau"],["book","livre"],["red","rouge"],["blue","bleu"],["cat","chat"],["bread","pain"],["sun","soleil"],["door","porte"],["milk","lait"],["school","école"],["friend","ami"],["car","voiture"],["tree","arbre"],["hand","main"],["big","grand"],["happy","content"]];
+const CL=[null,[
+ ["She ___ to school every day.","goes",["go","going","gone"],"Elle va à l'école tous les jours."],
+ ["There ___ two cats in the garden.","are",["is","be","am"],"Il y a deux chats dans le jardin."],
+ ["I ___ a sandwich for lunch yesterday.","ate",["eat","eaten","eating"],"J'ai mangé un sandwich hier midi."],
+ ["My brother is taller ___ me.","than",["that","then","as"],"Mon frère est plus grand que moi."],
+ ["We ___ watching TV right now.","are",["is","do","have"],"Nous regardons la télé en ce moment."],
+ ["Can you ___ me the salt, please?","pass",["passes","passing","to pass"],"Peux-tu me passer le sel, s'il te plaît ?"],
+ ["It is cold. Put ___ your coat.","on",["in","at","to"],"Il fait froid. Mets ton manteau."],
+ ["He doesn't ___ coffee.","like",["likes","liking","liked"],"Il n'aime pas le café."],
+ ["___ you have any brothers or sisters?","Do",["Are","Does","Is"],"As-tu des frères ou sœurs ?"],
+ ["The train leaves ___ 8 o'clock.","at",["in","on","by"],"Le train part à 8 heures."],
+ ["I'm hungry. I want ___ apple.","an",["a","the","some"],"J'ai faim. Je veux une pomme."],
+ ["Last week we ___ to the beach.","went",["go","goes","gone"],"La semaine dernière, nous sommes allés à la plage."]
+],[
+ ["I have lived here ___ 2015.","since",["for","during","from"],"J'habite ici depuis 2015."],
+ ["If it rains tomorrow, we ___ at home.","will stay",["would stay","stayed","stay"],"S'il pleut demain, nous resterons à la maison."],
+ ["She asked me where I ___.","lived",["live","have lived","am living"],"Elle m'a demandé où j'habitais."],
+ ["He is interested ___ music.","in",["on","at","for"],"Il s'intéresse à la musique."],
+ ["I wish I ___ more free time.","had",["have","will have","having"],"Je voudrais avoir plus de temps libre."],
+ ["They ___ dinner when I arrived.","were having",["had","have had","are having"],"Ils dînaient quand je suis arrivé."],
+ ["This is the man ___ helped me.","who",["which","whose","where"],"Voici l'homme qui m'a aidé."],
+ ["You ___ smoke here. It is forbidden.","mustn't",["don't have to","might","would"],"Il est interdit de fumer ici."],
+ ["I look forward ___ you soon.","to seeing",["to see","for seeing","at seeing"],"J'ai hâte de te voir bientôt."],
+ ["The report ___ by the manager yesterday.","was written",["wrote","is written","has written"],"Le rapport a été écrit par le directeur hier."],
+ ["She suggested ___ a taxi.","taking",["to take","take","took"],"Elle a suggéré de prendre un taxi."],
+ ["Despite ___ tired, he kept working.","being",["to be","been","be"],"Malgré sa fatigue, il a continué à travailler."]
+]];
+const NPC_COMMON=[
+ ["Hello! I'm Professor Lexi.","Bonjour ! Je suis la professeure Lexi."],
+ ["Wild words live in the tall grass.","Des mots sauvages vivent dans l'herbe haute."],
+ ["Answer three questions to catch one!","Réponds à trois questions pour en capturer un !"]];
+const NPC_LV=[
+ ["Level A1: simple words. You can do it!","Niveau A1 : des mots simples. Tu peux le faire !"],
+ ["Level A2: short sentences. Nice!","Niveau A2 : des phrases courtes. Bien !"],
+ ["Level B1: grammar. No translation today!","Niveau B1 : de la grammaire. Pas de traduction !"]];
+
+/* ---------- state ---------- */
+const S={scene:"title",level:0,mode:1,px:10,py:16,vx:10,vy:16,dir:3,cool:3,dex:new Set(),missed:[[],[],[]],okStreak:0,koStreak:0,battle:null};
+const KEY="wordwilds-demo-v1";
+function save(){try{localStorage.setItem(KEY,JSON.stringify({dex:[...S.dex],level:S.level,mode:S.mode}))}catch(e){}}
+function load(){try{const d=JSON.parse(localStorage.getItem(KEY)||"null");if(d){S.dex=new Set((d.dex||[]).filter(id=>CREATURES.some(c=>c.id===id)));S.level=Math.min(2,Math.max(0,d.level|0));S.mode=Math.min(2,Math.max(0,d.mode|0))}}catch(e){}}
+load();
+
+/* ---------- sound ---------- */
+let AC=null,muted=false;
+function beep(f,d,type,v,when){if(muted)return;try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain();o.type=type||"square";o.frequency.value=f;o.connect(g);g.connect(AC.destination);const t0=AC.currentTime+(when||0);g.gain.setValueAtTime(v||.04,t0);g.gain.exponentialRampToValueAtTime(.0001,t0+d);o.start(t0);o.stop(t0+d+.02)}catch(e){}}
+const sfxOk=()=>{beep(660,.1);beep(880,.16,"square",.04,.09)};
+const sfxNo=()=>beep(170,.3,"sawtooth",.04);
+const sfxCap=()=>[523,659,784,1047].forEach((f,i)=>beep(f,.18,"square",.04,i*.12));
+function say(t){try{if(muted||!window.speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang="en-US";u.rate=.9;speechSynthesis.speak(u)}catch(e){}}
+
+/* ---------- UI helpers ---------- */
+let toastT=0;
+function toast(t){const el=$("toast");el.textContent=t;el.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove("show"),1900)}
+function updateHud(){$("hudL").textContent=LV[S.level]+" · "+MODES[S.mode];$("hudDex").textContent="Wordex "+S.dex.size+"/"+CREATURES.length}
+function showMapUI(on){$("hud").classList.toggle("hidden",!on);$("foot").classList.toggle("hidden",!on)}
+
+/* ---------- title ---------- */
+const tsp=$("tsp");
+CREATURES.slice(0,4).forEach(c=>{const k=document.createElement("canvas");k.width=k.height=32;k.getContext("2d").drawImage(c.sprite,0,0);tsp.appendChild(k)});
+function syncSeg(){
+  document.querySelectorAll("#segLv button").forEach(b=>b.classList.toggle("on",+b.dataset.lv===S.level));
+  document.querySelectorAll("#segMode button").forEach(b=>b.classList.toggle("on",+b.dataset.m===S.mode));
+  $("mh").textContent=MODEHINT[S.mode];
+}
+document.querySelectorAll("#segLv button").forEach(b=>b.onclick=()=>{S.level=+b.dataset.lv;syncSeg()});
+document.querySelectorAll("#segMode button").forEach(b=>b.onclick=()=>{S.mode=+b.dataset.m;syncSeg()});
+$("start").onclick=()=>{
+  $("title").classList.add("hidden");S.scene="map";showMapUI(true);updateHud();save();toast("Walk into the tall grass!");
+  try{AC=AC||new (window.AudioContext||window.webkitAudioContext)()}catch(e){}
+};
+syncSeg();
+
+/* ---------- movement ---------- */
+const moving=()=>Math.abs(S.px-S.vx)+Math.abs(S.py-S.vy)>.3;
+function move(dx,dy){
+  if(S.scene!=="map"||moving())return;
+  S.dir=dx<0?1:dx>0?2:dy<0?3:0;
+  const nx=S.px+dx,ny=S.py+dy,c=tile(nx,ny);
+  if(c==="N"){talk();return}
+  if(solid(c))return;
+  S.px=nx;S.py=ny;
+  if(S.cool>0)S.cool--;
+  else if(c==="g"&&Math.random()<.2)encounter();
+}
+function encounter(){
+  S.scene="transition";beep(300,.08);
+  const f=$("flash");f.classList.remove("go");void f.offsetWidth;if(!reduced)f.classList.add("go");
+  setTimeout(startBattle,reduced?150:650);
+}
+
+/* ---------- dialog ---------- */
+let dlg=null;
+function talk(){
+  S.scene="dialog";const lines=NPC_COMMON.concat([NPC_LV[S.level]]);dlg={i:0,fr:false,lines};
+  $("dialog").classList.remove("hidden");showD();
+}
+function showD(){const L=dlg.lines[dlg.i];$("dtext").textContent=dlg.fr?L[1]:L[0];$("dfr").style.visibility=(S.level===2||S.mode===2)?"hidden":"visible"}
+function advanceD(){dlg.i++;if(dlg.i>=dlg.lines.length){$("dialog").classList.add("hidden");S.scene="map"}else{dlg.fr=false;showD()}}
+$("dialog").onclick=advanceD;
+$("dfr").onclick=e=>{e.stopPropagation();dlg.fr=!dlg.fr;showD()};
+
+/* ---------- questions ---------- */
+function specKey(s){return s.t==="w"?"w"+s.i+(s.dir?"f":"e"):"c"+s.lvl+"_"+s.i}
+function pickSpec(){
+  const m=S.missed[S.level];let s=null;
+  if(m.length&&Math.random()<.4)s=m[rand(m.length)];
+  for(let n=0;n<6&&(!s||(S.battle.lastKey===specKey(s)));n++){
+    if(S.level===0)s={t:"w",i:rand(WORDS.length),dir:Math.random()<.5};
+    else s={t:"c",lvl:S.level,i:rand(CL[S.level].length)};
+  }
+  return s;
+}
+function buildQ(s){
+  if(s.t==="w"){
+    const [en,fr]=WORDS[s.i];const others=shuffle(WORDS.filter((_,j)=>j!==s.i)).slice(0,3).map(w=>s.dir?w[1]:w[0]);
+    const ans=s.dir?fr:en;
+    return {html:s.dir?"What does “"+en+"” mean?":"How do you say “"+fr+"” in English?",hint:"",answer:ans,choices:shuffle([ans,...others]),line:en+" = "+fr,fr:"",sayText:en};
+  }
+  const [sent,ans,wr,fr]=CL[s.lvl][s.i];
+  return {html:sent.replace("___","<u></u>"),hint:fr,answer:ans,choices:shuffle([ans,...wr]),line:sent.replace("___",ans),fr:fr,sayText:sent.replace("___",ans)};
+}
+
+/* ---------- battle ---------- */
+function later(b,fn,ms){b.skip=()=>{clearTimeout(b.next);b.skip=null;fn()};b.next=setTimeout(b.skip,ms)}
+function renderStats(){
+  const b=S.battle;$("bname").textContent="Wild "+b.c.name;
+  $("pips").innerHTML="";for(let i=0;i<3;i++){const p=document.createElement("i");if(i<3-b.hp)p.className="on";$("pips").appendChild(p)}
+  $("hearts").textContent="♥".repeat(b.hearts)+"·".repeat(3-b.hearts);
+}
+function startBattle(){
+  const c=CREATURES[rand(CREATURES.length)];
+  S.battle={c,hp:3,hearts:3,q:null,locked:true,shake:0,t0:performance.now(),capStart:0,lastKey:"",skip:null,next:0,tm:0};
+  S.scene="battle";showMapUI(false);$("battle").classList.remove("hidden");$("card").classList.add("hidden");
+  $("fb").classList.add("hidden");$("qtext").classList.remove("hidden");$("choices").innerHTML="";
+  $("qtext").innerHTML="A wild "+c.name+" appeared!";$("tbar").classList.add("off");
+  $("bhint").classList.add("hidden");$("bsay").classList.add("hidden");
+  renderStats();later(S.battle,nextQ,1000);
+}
+function nextQ(){
+  const b=S.battle;if(!b)return;
+  const spec=pickSpec();b.spec=spec;b.lastKey=specKey(spec);const q=buildQ(spec);b.q=q;b.locked=false;b.hinted=false;
+  $("fb").classList.add("hidden");$("qtext").classList.remove("hidden");
+  $("qtext").innerHTML="<span>"+q.html+"</span>"+(S.mode===0&&q.hint?"<small>"+q.hint+"</small>":"");
+  const box=$("choices");box.innerHTML="";
+  q.choices.forEach((t,i)=>{const bt=document.createElement("button");bt.className="ch";bt.textContent=t;bt.onclick=()=>answer(i);box.appendChild(bt)});
+  $("bhint").classList.toggle("hidden",S.mode!==0);$("bhint").disabled=false;$("bsay").classList.add("hidden");
+  const tb=$("tbar"),tf=$("tfill");
+  if(S.mode===2){
+    tb.classList.remove("off");tf.style.transition="none";tf.style.width="100%";void tf.offsetWidth;tf.style.transition="width 12s linear";tf.style.width="0%";
+    b.tm=setTimeout(()=>answer(-1),12000);
+  }else{tb.classList.add("off")}
+}
+$("bhint").onclick=()=>{
+  const b=S.battle;if(!b||b.locked||b.hinted)return;b.hinted=true;$("bhint").disabled=true;
+  const wrong=[...$("choices").children].filter((el,i)=>b.q.choices[i]!==b.q.answer&&!el.classList.contains("off"));
+  if(wrong.length)wrong[rand(wrong.length)].classList.add("off");
+};
+$("bsay").onclick=()=>{if(S.battle&&S.battle.q)say(S.battle.q.sayText)};
+function adapt(){
+  if(S.okStreak>=4&&S.level<2){S.level++;S.okStreak=0;toast("Level up! "+LV[S.level]);sfxCap()}
+  else if(S.koStreak>=3&&S.level>0){S.level--;S.koStreak=0;toast("Let's practise "+LV[S.level])}
+  updateHud();save();
+}
+function answer(i){
+  const b=S.battle;if(!b||b.locked||S.scene!=="battle")return;
+  b.locked=true;clearTimeout(b.tm);if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();
+  const q=b.q,ok=i>=0&&q.choices[i]===q.answer;
+  const tf=$("tfill");tf.style.transition="none";
+  [...$("choices").children].forEach((el,k)=>{el.classList.add("off");if(q.choices[k]===q.answer)el.classList.remove("off"),el.classList.add("ok");else if(k===i)el.classList.remove("off"),el.classList.add("bad")});
+  const key=specKey(b.spec),m=S.missed[S.level];
+  $("qtext").classList.add("hidden");const fb=$("fb");fb.classList.remove("hidden");
+  $("bsay").classList.remove("hidden");$("bhint").classList.add("hidden");
+  fb.innerHTML=(ok?'<b class="ok">✓ Correct!</b>':'<b class="no">✗ '+(i<0?"Time's up! ":"")+'Answer: '+q.answer+'</b>')+"<br>"+q.line+(q.fr?"<em>"+q.fr+"</em>":"");
+  if(ok){
+    sfxOk();b.hp--;b.shake=1;S.okStreak++;S.koStreak=0;
+    const k=m.findIndex(s=>specKey(s)===key);if(k>=0)m.splice(k,1);
+    renderStats();adapt();
+    if(b.hp<=0)later(b,capture,1000);else later(b,nextQ,1400);
+  }else{
+    sfxNo();b.hearts--;S.koStreak++;S.okStreak=0;
+    if(!m.some(s=>specKey(s)===key))m.push(b.spec);
+    renderStats();adapt();
+    if(b.hearts<=0)later(b,flee,2000);else later(b,nextQ,2300);
+  }
+}
+function card(html){const c=$("card");c.innerHTML=html;c.classList.remove("hidden")}
+function capture(){
+  const b=S.battle;S.scene="capture";b.capStart=performance.now();b.skip=null;sfxCap();
+  const isNew=!S.dex.has(b.c.id);S.dex.add(b.c.id);save();updateHud();
+  setTimeout(()=>{
+    const c=b.c,done=S.dex.size===CREATURES.length;
+    card('<div class="ct">'+(isNew?"Caught!":"Caught again!")+'</div><canvas id="cc" width="32" height="32"></canvas><div class="cw">'+c.word+'</div><div class="cs">'+c.s+'</div><div class="cf">'+c.fr+'</div>'+(done&&isNew?'<div class="cs" style="color:#b04a1f">Wordex complete! Try a higher level.</div>':"")+'<div class="cr"><button class="mini" id="cl">Listen</button><button class="mini" id="ccont">Continue</button></div>');
+    $("cc").getContext("2d").drawImage(c.sprite,0,0);
+    $("cl").onclick=()=>say(c.s);$("ccont").onclick=endBattle;$("ccont").focus();say(c.word);
+  },reduced?100:800);
+}
+function flee(){
+  const b=S.battle;S.scene="flee";b.skip=null;
+  card('<div class="ct">Oh no!</div><canvas id="cc" width="32" height="32"></canvas><div class="cw" style="font-size:16px">'+b.c.name+' ran away</div><div class="cs">Missed questions will come back so you can practise them.</div><div class="cr"><button class="mini" id="ccont">Continue</button></div>');
+  $("cc").getContext("2d").drawImage(b.c.sprite,0,0);$("ccont").onclick=endBattle;$("ccont").focus();
+}
+function endBattle(){
+  if(S.battle){clearTimeout(S.battle.next);clearTimeout(S.battle.tm)}
+  S.battle=null;$("battle").classList.add("hidden");$("card").classList.add("hidden");
+  S.scene="map";S.cool=4;showMapUI(true);updateHud();
+}
+
+/* ---------- Wordex ---------- */
+function openDex(){
+  if(S.scene!=="map")return;
+  S.scene="dex";showMapUI(false);$("dex").classList.remove("hidden");
+  $("dexT").textContent="Wordex "+S.dex.size+"/"+CREATURES.length;
+  const g=$("dgrid");g.innerHTML="";$("dinfo").textContent="Tap a card.";
+  CREATURES.forEach(c=>{
+    const got=S.dex.has(c.id),d=document.createElement("button");d.className="dcard"+(got?"":" lock");
+    const k=document.createElement("canvas");k.width=k.height=32;k.getContext("2d").drawImage(c.sprite,0,0);d.appendChild(k);
+    const n=document.createElement("span");n.textContent=got?c.name:"???";d.appendChild(n);
+    d.onclick=()=>{[...g.children].forEach(x=>x.classList.remove("sel"));d.classList.add("sel");
+      $("dinfo").innerHTML=got?"<b>"+c.word+"</b> – "+c.s+"<small>"+c.fr+"</small>":"Not caught yet. Look in the tall grass!"};
+    g.appendChild(d);
+  });
+}
+function closeDex(){$("dex").classList.add("hidden");S.scene="map";showMapUI(true)}
+$("hudDex").onclick=openDex;$("btnDex").onclick=()=>{if(S.scene==="dex")closeDex();else openDex()};$("dexClose").onclick=closeDex;
+
+/* ---------- input ---------- */
+function interact(){
+  if(S.scene==="map"){
+    for(const [dx,dy] of [[0,-1],[0,1],[-1,0],[1,0]])if(tile(S.px+dx,S.py+dy)==="N"){S.dir=dx<0?1:dx>0?2:dy<0?3:0;talk();return}
+  }else if(S.scene==="dialog")advanceD();
+  else if(S.scene==="battle"){if(S.battle&&S.battle.skip)S.battle.skip()}
+  else if(S.scene==="capture"||S.scene==="flee"){const b=$("ccont");if(b)b.click()}
+  else if(S.scene==="dex")closeDex();
+}
+$("btnA").onclick=interact;
+document.querySelectorAll("[data-d]").forEach(b=>{
+  const [dx,dy]=b.dataset.d.split(",").map(Number);let iv=0;const stop=()=>{clearInterval(iv);iv=0};
+  b.addEventListener("pointerdown",e=>{e.preventDefault();move(dx,dy);stop();iv=setInterval(()=>move(dx,dy),110)});
+  ["pointerup","pointerleave","pointercancel"].forEach(ev=>b.addEventListener(ev,stop));
+});
+const KMAP={ArrowUp:[0,-1],w:[0,-1],ArrowDown:[0,1],s:[0,1],ArrowLeft:[-1,0],a:[-1,0],ArrowRight:[1,0],d:[1,0]};
+addEventListener("keydown",e=>{
+  const k=e.key;
+  if(KMAP[k]){e.preventDefault();move(...KMAP[k]);return}
+  if((k==="Enter"||k===" "||k==="z")&&!(e.target&&e.target.tagName==="BUTTON")){e.preventDefault();interact();return}
+  if(/^[1-4]$/.test(k)&&S.scene==="battle"){const el=$("choices").children[+k-1];if(el)el.click()}
+});
+
+/* ---------- render loop ---------- */
+function drawPlayer(x,y,dir,bob){
+  y+=bob;
+  R(ctx,x+4,y+15,8,1,"rgba(0,0,0,.25)");
+  R(ctx,x+5,y+12,2,3,"#2a3550");R(ctx,x+9,y+12,2,3,"#2a3550");
+  R(ctx,x+4,y+7,8,5,"#3c6fd1");R(ctx,x+4,y+7,8,1,"#5b8ae6");
+  if(dir===3)R(ctx,x+5,y+8,6,3,"#f2b632");
+  R(ctx,x+5,y+3,6,5,"#f3c9a0");
+  R(ctx,x+4,y+1,8,3,"#d94a3a");R(ctx,x+3,y+3,10,1,"#b83a2c");
+  if(dir===0){R(ctx,x+6,y+5,1,2,"#1d2b3a");R(ctx,x+9,y+5,1,2,"#1d2b3a")}
+  else if(dir===1){R(ctx,x+5,y+5,1,2,"#1d2b3a");R(ctx,x+7,y+5,1,2,"#1d2b3a")}
+  else if(dir===2){R(ctx,x+8,y+5,1,2,"#1d2b3a");R(ctx,x+10,y+5,1,2,"#1d2b3a")}
+}
+function drawMap(t){
+  R(ctx,0,0,W,H,"#1d2b3a");ctx.drawImage(mapCv,0,OY);
+  const mv=moving(),x=Math.round(S.vx*T),y=Math.round(S.vy*T)+OY;
+  drawPlayer(x,y,S.dir,mv&&(Math.floor(t/90)%2)?-1:0);
+  if(tile(Math.round(S.vx),Math.round(S.vy))==="g"){for(let i=0;i<5;i++){const bx=x+2+i*3;R(ctx,bx,y+11,1,5,"#2c7a45");R(ctx,bx+1,y+12,1,2,"#8be08a")}}
+}
+function drawBattle(t){
+  const b=S.battle;
+  R(ctx,0,0,W,H,"#1d2b3a");
+  R(ctx,0,0,W,172,"#bfe3f2");R(ctx,0,40,W,40,"#cfeaf3");
+  E(ctx,56,126,92,38,"#8fd08a");E(ctx,196,130,100,42,"#79c36f");R(ctx,0,136,W,36,"#62ad5f");
+  for(let i=0;i<14;i++){R(ctx,hh(i,1,2)%232,140+hh(i,2,3)%28,3,1,"#79c36f")}
+  E(ctx,120,138,58,12,"#4e9650");E(ctx,120,136,58,10,"#7ac06f");
+  if(!b)return;
+  const e=Math.min(1,(t-b.t0)/350);
+  let capU=0;if(b.capStart)capU=Math.min(1,(t-b.capStart)/700);
+  const sc=e*(1-capU);
+  if(sc<=0.02&&b.capStart){ // sparkles after capture
+    for(let i=0;i<6;i++){const a=i/6*6.283+t/400,r=20+((t-b.capStart-700)/20)%16;R(ctx,120+Math.cos(a)*r|0,112+Math.sin(a)*r|0,3,3,"#ffcf4a")}
+    return;
+  }
+  const size=Math.max(2,Math.round(96*sc));
+  const bob=b.capStart?0:Math.sin(t/300)*3;
+  b.shake*=.9;if(b.shake<.05)b.shake=0;
+  const sx=Math.sin(t/25)*5*b.shake;
+  ctx.drawImage(b.c.sprite,0,0,32,32,Math.round(120-size/2+sx),Math.round(137-size*.92+bob),size,size);
+  if(b.shake>.5){R(ctx,Math.round(120+sx)-4,60,3,3,"#fff");R(ctx,Math.round(120+sx)+14,72,3,3,"#ffcf4a")}
+}
+function frame(t){
+  S.vx+=(S.px-S.vx)*.3;S.vy+=(S.py-S.vy)*.3;
+  if(Math.abs(S.px-S.vx)<.02)S.vx=S.px;if(Math.abs(S.py-S.vy)<.02)S.vy=S.py;
+  if(S.scene==="battle"||S.scene==="capture"||S.scene==="flee")drawBattle(t);else drawMap(t);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* ---------- scaling, sound toggle, reset ---------- */
+function fit(){
+  const stage=$("stage"),scr=$("scr");
+  const availW=Math.min(document.documentElement.clientWidth,460)-28-32-16;
+  const s=Math.max(1,Math.min(2,availW/W,(innerHeight-250)/H));
+  stage.style.width=(W*s)+"px";stage.style.height=(H*s)+"px";scr.style.transform="scale("+s+")";
+}
+fit();addEventListener("resize",fit);
+$("snd").onclick=()=>{muted=!muted;$("snd").textContent="Son : "+(muted?"coupé":"activé");if(muted&&window.speechSynthesis)speechSynthesis.cancel()};
+$("reset").onclick=()=>{
+  try{localStorage.removeItem(KEY)}catch(e){}
+  S.dex.clear();S.level=0;S.mode=1;S.missed=[[],[],[]];S.okStreak=S.koStreak=0;
+  if(S.battle)endBattle();$("dex").classList.add("hidden");$("dialog").classList.add("hidden");
+  S.scene="title";showMapUI(false);$("title").classList.remove("hidden");syncSeg();updateHud();
+};
+updateHud();
+})();
+</script>
+</body>
+</html>

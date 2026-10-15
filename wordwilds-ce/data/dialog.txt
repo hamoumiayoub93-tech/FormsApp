@@ -1,0 +1,8 @@
+# WordWilds - Prof. Lexi dialog. key|english|french
+# 'common' lines are said first, then the line of the current level.
+common|Hello! I'm Professor Lexi.|Bonjour ! Je suis la professeure Lexi.
+common|Wild words live in the tall grass.|Des mots sauvages vivent dans l'herbe haute.
+common|Answer three questions to catch one!|Réponds à trois questions pour en capturer un !
+A1|Level A1: simple words. You can do it!|Niveau A1 : des mots simples. Tu peux le faire !
+A2|Level A2: short sentences. Nice!|Niveau A2 : des phrases courtes. Bien !
+B1|Level B1: grammar. No translation today!|Niveau B1 : de la grammaire. Pas de traduction !
